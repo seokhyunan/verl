@@ -323,6 +323,14 @@ class PPOTrainer(ABC):
             experiment_name=self.config.trainer.experiment_name,
         )
 
+        try:
+            self._fit()
+        finally:
+            # Finalize tracking backends on every exit (including exceptions), while the
+            # process is still healthy, so wandb flushes history/summary and writes exit.
+            self.logger.finish()
+
+    def _fit(self):
         # perform validation before training
         if self.config.trainer.get("val_before_train", True):
             self.on_validate_begin()
